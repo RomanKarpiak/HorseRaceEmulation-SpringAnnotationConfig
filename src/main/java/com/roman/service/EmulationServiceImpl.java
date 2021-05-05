@@ -1,0 +1,139 @@
+package com.roman.service;
+
+import com.roman.domain.Horse;
+import com.roman.domain.Race;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collectors;
+
+@Service
+public class EmulationServiceImpl implements EmulationService {
+
+    private RaceService raceService;
+
+
+    @Autowired
+    public EmulationServiceImpl(RaceService raceService) {
+        this.raceService = raceService;
+    }
+
+
+    @Override
+    public void emulate() {
+        Race race = raceService.getRace();
+        List<Horse> horses = race.getHorsesList();
+        System.out.println("====================================");
+        System.out.println("Horse List");
+        System.out.println("====================================");
+        printHorsesList(horses);
+        Horse selectedHorse = selectHorse(horses);
+        startPreparationForRace(horses);
+        finishPreparationForRace(horses);
+        System.out.println("");
+        System.out.println("====================================");
+        System.out.println("HORSE RACE");
+        System.out.println("====================================");
+        System.out.println("");
+        System.out.println("====================================");
+        System.out.println("GO!!!");
+        System.out.println("====================================");
+        startRace(race);
+        printResultBet(horses, selectedHorse);
+        printLeaderboard(horses);
+    }
+
+    private void startRace(Race race) {
+        List<Horse> horseListInRace = race.getHorsesList();
+        int distance = race.getDistance();
+        int numberOfLaps = 1;
+        while (numberOfLaps != distance) {
+            System.out.println("##### LAP " + numberOfLaps + " ####");
+            printPositions(sortByDistance(horseListInRace));
+            for (Horse horse : horseListInRace) {
+                int move = 1 + (int) (Math.random() * 6);
+                horse.setDistance(horse.getDistance() + move);
+            }
+            numberOfLaps++;
+        }
+    }
+
+    private List<Horse> sortByDistance(List<Horse> horses) {
+        return horses.stream()
+                .sorted((o1, o2) -> o2.getDistance() - o1.getDistance())
+                .collect(Collectors.toList());
+    }
+
+    private void printPositions(List<Horse> horses) {
+        int positionHorse = 1;
+        for (Horse horse : horses) {
+            System.out.println(horse.getHorseName() + " " + positionHorse++);
+        }
+    }
+
+    private void printResultBet(List<Horse> horses, Horse selectedHorse) {
+        Horse horseWinner = sortByDistance(horses).get(0);
+        System.out.println("Your horse: " + selectedHorse.getHorseName());
+        System.out.println("Winner: " + horseWinner.getHorseName());
+        if (horseWinner.equals(selectedHorse)) {
+            System.out.println("Congratulation!!! You Win!!!");
+        } else {
+            System.out.println("You're out of luck, try again");
+        }
+    }
+
+    private void printLeaderboard(List<Horse> horses) {
+        System.out.println("Winner List: \n");
+        System.out.printf("%-10s%-10s%-10s%-10s%n", "Place", "Horse", "Rider", "Breed");
+        List<Horse> sortedWinner = sortByDistance(horses);
+        int place = 1;
+        for (Horse horse : sortedWinner) {
+            System.out.printf("%-10d%-10s%-10s%-10s%n", place++, horse.getHorseName(), horse.getRider(), horse.getBreed());
+        }
+        System.out.println();
+    }
+
+    private Horse selectHorse(List<Horse> horses) {
+        Scanner input = new Scanner(System.in);
+        while (true) {
+            System.out.println("Enter the horse number: ");
+            while (!input.hasNextInt()) {
+                System.out.println("Incorrect input,you must enter a number from 1 to " + horses.size());
+                input.next();
+                System.out.println("Enter the horse number: ");
+            }
+            int horseNum = input.nextInt();
+            if (horseNum < 1 || horseNum > horses.size()) {
+                System.out.println("Incorrect input,you must enter a number from 1 to " + horses.size());
+            } else {
+                Horse selectedHorse = horses.get(horseNum - 1);
+                System.out.println("You choose " + selectedHorse.getHorseName());
+                return selectedHorse;
+            }
+        }
+    }
+
+    public void printHorsesList(List<Horse> horses) {
+        System.out.printf("%-10s%-10s%-10s%-10s%n", "Number", "Horse", "Rider", "Breed");
+        int count = 1;
+        for (int i = 1; i < horses.size() + 1; i++) {
+            System.out.printf("%-10d%-10s%-10s%-10s%n", i, horses.get(i - 1).getHorseName(), horses.get(i - 1).getRider(), horses.get(i - 1).getBreed());
+        }
+        System.out.println();
+    }
+
+    public void startPreparationForRace(List<Horse> horses) {
+        for (Horse horse : horses) {
+            System.out.println(horse.getHorseName() + " and " + horse.getRider().getRiderName() + " are being prepared for racing");
+        }
+    }
+
+
+    public void finishPreparationForRace(List<Horse> horses) {
+        for (Horse horse : horses) {
+            System.out.println(horse.getHorseName() + " and " + horse.getRider().getRiderName() + " are ready for the race");
+        }
+    }
+}
