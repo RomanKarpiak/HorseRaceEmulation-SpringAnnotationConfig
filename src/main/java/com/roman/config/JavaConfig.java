@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @ComponentScan("com.roman")
-@PropertySource("raceService.properties")
+@PropertySource("application.properties")
 public class JavaConfig {
     @Bean
     public Rider rider1() {

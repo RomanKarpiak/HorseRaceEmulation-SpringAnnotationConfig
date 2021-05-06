@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Service
 public class EmulationServiceImpl implements EmulationService {
 
-    private RaceService raceService;
+    private final RaceService raceService;
 
 
     @Autowired

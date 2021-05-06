@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class RaceServiceImpl implements RaceService {
@@ -33,18 +31,14 @@ public class RaceServiceImpl implements RaceService {
         return race;
     }
 
-    public List<Horse> generateHorsesListInRace () {
-        int randomNumOfHorse;
-        int count = 0;
+    public List<Horse> generateHorsesListInRace() {
         List<Horse> horsesListInRace = new ArrayList<>();
-        while (count != this.numOfHorsesInRace) {
-            randomNumOfHorse = (int) (Math.random() * horseService.getHorsesList().size());
-            if (!horsesListInRace.contains(horseService.getHorsesList().get(randomNumOfHorse))) {
-                horsesListInRace.add(horseService.getHorsesList().get(randomNumOfHorse));
-                count++;
-            }
+        List<Horse> horseList = horseService.getHorsesList();
+        Collections.shuffle(horseList);
+        for (int i = 0; i < numOfHorsesInRace; i++) {
+            horsesListInRace.add(horseList.get(i));
         }
         horsesListInRace.sort(Comparator.comparing(Horse::getHorseName));
-       return horsesListInRace;
+        return horsesListInRace;
     }
 }
